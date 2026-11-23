@@ -10,6 +10,12 @@ Versiunea 0.13.0. Arcade cu perspectivă 2.5D în română, cu fizica mașinii �
 | --- | --- |
 | ![Carpatinul pe o porțiune cu polei](docs/screenshots/fagetul-alb.jpg) | ![Vijelia în garaj, cu jante aurii și proiectoare pe plafon](docs/screenshots/garaj.jpg) |
 
+## Despre proiect
+
+Am pornit **Ține coletul!** ca proiect de învățare. Am stabilit direcția creativă, am ales ce mecanici, vehicule și trasee să adaug și am ghidat evoluția jocului. Am folosit instrumente de inteligență artificială ca sprijin la implementare și la rafinarea graficii.
+
+Prin acest proiect învăț cum se construiește și se testează un joc pentru Android și cum se pregătește o lansare în Google Play Console. Vreau să aplic experiența asta la următoarele mele jocuri și aplicații.
+
 ## Joacă pe PC
 
 Închide fereastra versiunii vechi. Deschide `Joaca-pe-PC.cmd` sau `app/src/main/assets/index.html` în Chrome / Edge. Păstrează întregul director: jocul folosește fișierele locale de lângă HTML.
