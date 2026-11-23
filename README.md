@@ -2,6 +2,14 @@
 
 Versiunea 0.13.0. Arcade cu perspectivă 2.5D în română, cu fizica mașinii și a mărfii, 21 de livrări în șase capitole și curse contra cronometru. Offline, fără reclame, conturi, cumpărături cu bani reali sau telemetrie.
 
+## Capturi din joc
+
+![Livrare lângă farul din Brizeni, cu Delfinul](docs/screenshots/brizeni.jpg)
+
+| Polei în Făgetul Alb | Personalizarea Vijeliei |
+| --- | --- |
+| ![Carpatinul pe o porțiune cu polei](docs/screenshots/fagetul-alb.jpg) | ![Vijelia în garaj, cu jante aurii și proiectoare pe plafon](docs/screenshots/garaj.jpg) |
+
 ## Joacă pe PC
 
 Închide fereastra versiunii vechi. Deschide `Joaca-pe-PC.cmd` sau `app/src/main/assets/index.html` în Chrome / Edge. Păstrează întregul director: jocul folosește fișierele locale de lângă HTML.
