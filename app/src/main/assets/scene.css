@@ -1,0 +1,75 @@
+#home .dispatch-card {
+  width: 100%; min-width: 0; text-align: left; gap: 10px;
+  background: #132840e8; border: 1px solid #e9e4d543; border-radius: 10px;
+  padding: 6px 10px; box-shadow: 0 3px 0 #111e31;
+}
+#home .dispatch-card:active { transform: translateY(2px); box-shadow: 0 1px 0 #111e31; }
+#home .dispatch-copy { flex: 1; min-width: 0; }
+#home .map-peek-icon {
+  flex: 0 0 23px; width: 23px; height: 21px; fill: none;
+  stroke: #f6cc79; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;
+}
+#home-client { line-height: 1.17; }
+#home-quote { font-weight: 500; line-height: 1.22; }
+
+#route-dialog {
+  width: min(660px,100%); padding: 20px 23px; text-align: left;
+  color: #ffecd0; background: #172b41; border-color: #4c6679;
+}
+.route-brief-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+#route-dialog .eyebrow { justify-content: flex-start; color: #91d8c2; margin: 0; }
+#route-dialog h2 { margin: 4px 0; color: #fff1d8; }
+#route-dialog>p { color: #cfdee5; }
+#route-conditions { margin: 4px 0 10px; font-size: 12px; }
+#route-chart { display: block; width: 100%; cursor: pointer; border: 1px solid #668191; border-radius: 10px; }
+.route-legend { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 7px 0; }
+.route-legend button {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 4px 9px;
+  background: #203951; border: 1px solid #698598; border-radius: 7px; color: #f9e9ce;
+  font-size: 11px; font-weight: 800;
+}
+.route-legend button[aria-pressed=true] { background: #38566c; border-color: #f9e9ce; }
+.route-legend i { width: 9px; height: 9px; border-radius: 50%; }
+#route-feature { min-height: 2.8em; font-size: 11px; margin: 3px 0; }
+#route-close { flex: 0 0 38px; color: #13243a; font-size: 21px; }
+#route-dialog>#route-start { margin: 6px 0 0; color: #172b41; }
+
+#hud .cargo-health .cargo-slices { display: flex; gap: 3px; grid-column: 2/-1; margin-top: 3px; }
+.cargo-slices i { width: 13px; height: 4px; overflow: hidden; border-radius: 3px; background: #2f435c; }
+.cargo-slices i b { display: block; height: 100%; background: #77d9b9; border-radius: 3px; }
+.cargo-slices i.dented b { background: #ffb083; }
+#route-marks .service-marker { border-radius: 2px; transform: translate(-50%,-50%) rotate(45deg); background: #78dac1; }
+#hud::before {
+  position: absolute; inset: auto 0 0; height: 112px; content: ""; pointer-events: none;
+  background: linear-gradient(0deg,#10223868,#10223800);
+}
+.service-action {
+  position: absolute; bottom: max(18px,env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%); pointer-events: auto;
+}
+#service-button {
+  min-height: 46px; min-width: 126px; padding: 0 10px; position: relative; overflow: hidden;
+  color: #172f44; border: 2px solid #13233b; border-radius: 11px;
+  background: #8fe1cf; box-shadow: 0 4px 0 #24675f;
+}
+#service-button strong { position: relative; font-size: 12px; z-index: 1; }
+#service-button:disabled { background: #87bea8; color: #183844; opacity: 1; }
+#service-fill { position: absolute; inset: 0 auto 0 0; background: #edc578; }
+#hud .stunt-toast.service { background: #92e3c8; }
+
+@media (orientation: landscape) and (max-height: 420px) {
+  #home .dispatch-card { min-height: 38px; padding: 4px 8px; }
+  #route-dialog { width: min(620px,100%); padding: 11px 16px; }
+  #route-dialog h2 { font-size: 20px; }
+  #route-chart { max-height: 117px; }
+  #route-conditions,#route-feature { font-size: 10px; min-height: 0; }
+  #route-dialog>#route-start { min-height: 36px; }
+}
+@media (orientation: landscape) and (max-height: 340px) {
+  #home .dispatch-card { min-height: 36px; }
+  #home .map-peek-icon { width: 18px; height: 18px; flex-basis: 18px; }
+}
+@media (orientation: portrait) {
+  #hud .cargo-health .cargo-slices { grid-column: 1/-1; }
+  .service-action { bottom: max(110px,env(safe-area-inset-bottom)); }
+}

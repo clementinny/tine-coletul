@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#142842">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Ține coletul! — Haos în cartier</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="arcade.css">
+  <link rel="stylesheet" href="cartier.css">
+  <link rel="stylesheet" href="fun.css">
+  <link rel="stylesheet" href="workshop.css">
+  <link rel="stylesheet" href="rally.css">
+  <link rel="stylesheet" href="scene.css">
+  <link rel="stylesheet" href="cab.css">
+  <script defer src="vendor/matter.min.js"></script>
+  <script defer src="characters.js"></script>
+  <script defer src="dialogue.js"></script>
+  <script defer src="districts.js"></script>
+  <script defer src="cities.js"></script>
+  <script defer src="levels.js"></script>
+  <script defer src="fun.js"></script>
+  <script defer src="workshop.js"></script>
+  <script defer src="cab-run.js"></script>
+  <script defer src="customs.js"></script>
+  <script defer src="storage.js"></script>
+  <script defer src="route-trial.js"></script>
+  <script defer src="physics.js"></script>
+  <script defer src="scenery.js"></script>
+  <script defer src="world-art.js"></script>
+  <script defer src="city-art.js"></script>
+  <script defer src="cab-art.js"></script>
+  <script defer src="render.js"></script>
+  <script defer src="route-map.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <canvas id="world" aria-label="Cartier desenat și simulare de livrare"></canvas>
+  <div class="paper" aria-hidden="true"></div>
+  <main id="home" class="screen">
+    <header class="topbar">
+      <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m4 9 12-6 12 6v15l-12 6-12-6zM4 9l12 6 12-6M16 15v15M10 6l12 6v6"/></svg><span>HAOS ÎN CARTIER</span></div>
+      <nav class="header-actions" aria-label="Meniul jocului">
+        <button id="collection-button" class="garage-button collection-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v16H3zM7 4v16M11 9h6M11 13h6"/></svg> Cartier</button>
+        <button id="garage-button" class="garage-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v11H3zM7 21V11h10v10M7 15h10"/></svg> Atelier <strong id="home-wallet" aria-label="Piese disponibile">0</strong></button>
+        <button id="settings-button" class="icon-button" aria-label="Deschide setările"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M8 4v6M16 14v6"/></svg></button>
+      </nav>
+    </header>
+    <section class="home-content">
+      <h1>ȚINE<br>COLETUL<span>!</span></h1>
+      <button id="route-map-button" class="dispatch-card" aria-label="Vezi harta livrării selectate">
+        <span id="client-avatar" class="client-avatar" aria-hidden="true"></span>
+        <span class="dispatch-copy"><strong id="home-client"></strong><span id="home-quote"></span></span>
+        <svg class="map-peek-icon" viewBox="0 0 28 24" aria-hidden="true"><path d="M2 19 9 10l6 5 9-11m-6 0h6v6"/></svg>
+      </button>
+      <div class="home-buttons">
+        <button id="play-button" class="button primary"><span id="play-label">La drum!</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+        <button id="help-button" class="text-button">Cum se joacă</button>
+      </div>
+    </section>
+    <button id="express-button" class="express-button hidden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2h6m-3 0v4m6 1 2-2M12 9v5l-2 1m2 6a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"/></svg><span><strong>Contra cronometru</strong><small id="express-record"></small></span></button>
+    <section class="route-panel" aria-label="Alege o livrare">
+      <div class="route-heading"><nav id="chapter-list" aria-label="Capitole"></nav><span id="total-stars">0 / 36 <b>★</b></span></div>
+      <div id="level-list" class="level-list"></div>
+    </section>
+  </main>
+
+  <section id="hud" class="screen hidden" aria-label="Comenzile jocului">
+    <div class="hud-top"><button id="pause-button" class="icon-button" aria-label="Pauză"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button><div class="mission"><span id="mission-number">LIVRAREA 01</span><strong id="mission-name">Prima livrare</strong></div><div class="cargo-health"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 7 8-4 8 4v11l-8 4-8-4zM4 7l8 4 8-4M12 11v11M8 5l8 4v5"/></svg><span id="health-value">100%</span><small id="cargo-count">3 / 3 colete</small><span id="cargo-slices" class="cargo-slices" aria-hidden="true"></span></div><div class="clock"><span id="clock-label">TIMP</span><strong id="timer">0:00</strong></div><button id="restart-button" class="icon-button" aria-label="Reîncepe livrarea"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg></button></div>
+    <div class="progress-track"><div id="route-progress"></div><div id="route-marks" aria-hidden="true"></div><svg class="finish-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22V3m0 1c5-5 10 5 15 0v11c-5 5-10-5-15 0"/></svg></div>
+    <div class="live-meters">
+    <div class="arcade-meter"><span class="coin-icon" aria-hidden="true"></span><strong id="rings-value" aria-label="Monede">0</strong><span class="score-label">SCOR</span><strong id="arcade-score">0</strong></div>
+    <div class="quest-hud"><strong id="probe-readout">0 / 1 probe</strong><b id="clean-streak" class="hidden"></b></div>
+    <div id="pilot-readout" class="pilot-readout"><span>PIESE ÎN AER</span><b id="pieces-value">0 / 2</b></div>
+    <div class="power-status" aria-live="polite"><span id="magnet-status" class="hidden"><i id="magnet-icon"></i><b id="magnet-time"></b></span><span id="bubble-status" class="hidden"><i id="bubble-icon"></i><b id="bubble-time"></b></span></div>
+    </div>
+    <div id="stunt-toast" class="stunt-toast hidden" aria-live="polite"></div>
+    <div id="client-bubble" class="client-bubble"><span id="drive-portrait" class="drive-portrait" aria-hidden="true"></span><div><b id="drive-client"></b><span id="drive-quote"></span></div></div>
+    <div id="tip" class="driving-tip">Accelerează ușor. Marfa simte fiecare mișcare.</div>
+    <div id="delivery-tip" class="delivery-tip hidden">Ai ajuns! Frânează și oprește în zona verde.</div>
+    <div class="touch-bank touch-left">
+      <button id="brake" class="pedal brake" aria-label="Ține apăsat pentru frână"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 7h16v18H8zM12 12h8m-8 4h8m-8 4h8"/></svg><strong>FRÂNĂ</strong></button>
+      <button id="jump-button" class="pilot-button" aria-label="Sari"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 26h20M16 21V5m-7 7 7-7 7 7"/></svg><strong>SARI</strong></button>
+      <button id="rescue-button" class="rescue-button" aria-label="Ține marfa cu o chingă"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m5 12 11-6 11 6v13l-11 5-11-5zM5 12l11 6 11-6M16 18v12M9 10l11 6v9M3 4l3 3M28 3l-2 4M15 1v4"/></svg><strong>ȚINE!</strong><b id="rescue-charges">2</b><i id="rescue-fill"></i></button>
+    </div>
+    <div class="touch-bank touch-right">
+      <button id="horn-button" class="horn-button" aria-label="Claxonează"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m5 13 13-6v18L5 19zM5 13v6m18-8 4-4m-3 9h5m-6 5 4 4"/></svg><strong>CLAXON</strong></button>
+      <button id="turbo-button" class="pilot-button turbo-button" aria-label="Ține apăsat pentru turbo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m18 3-12 15h9l-1 11L27 13H17z"/></svg><strong>TURBO</strong><span class="energy-track"><i id="energy-fill"></i></span></button>
+      <button id="gas" class="pedal gas" aria-label="Ține apăsat pentru accelerație"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m8 17 8-8 8 8M8 24l8-8 8 8"/></svg><strong>GAZ</strong></button>
+    </div>
+    <div id="cab-access" class="cab-access hidden">
+      <button id="cab-enter"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11"/><path d="M5 14h22m-17 1 4 5v6m8-11-4 5v6"/></svg><span>Intră în probă<small>Din cabină</small></span></button>
+    </div>
+    <div id="service-wrapper" class="service-action hidden">
+      <button id="service-button" aria-label="Reambalează marfa și încarcă turbo"><span id="service-fill"></span><strong id="service-label">Reambalează</strong></button>
+    </div>
+    <div id="deliver-wrapper" class="delivery-action hidden"><button id="deliver-button" class="button primary">Livrează! <span aria-hidden="true">✓</span></button></div>
+  </section>
+
+  <section id="cab-hud" class="screen hidden" aria-label="Probă din cabină">
+    <div class="cab-top">
+      <button id="cab-pause" class="cab-control" aria-label="Pune proba pe pauză"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14m6-14v14"/></svg></button>
+      <div class="cab-heading"><small>DIN CABINĂ</small><strong id="cab-name"></strong></div>
+      <div class="cab-readout"><strong id="cab-time"></strong><span id="cab-hits" aria-label="Lovituri"><i></i><i></i><i></i></span></div>
+    </div>
+    <progress id="cab-progress" max="1" value="0" aria-label="Progresul probei"></progress>
+    <p id="cab-callout">Ferește-te de trafic</p>
+    <button id="cab-left" class="cab-control cab-direction" aria-label="Schimbă banda spre stânga"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M26 16H6m9-9-9 9 9 9"/></svg></button>
+    <button id="cab-right" class="cab-control cab-direction" aria-label="Schimbă banda spre dreapta"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 16h20m-9-9 9 9-9 9"/></svg></button>
+  </section>
+
+  <div id="dialog-layer" class="dialog-layer hidden">
+    <section id="pause-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title"><p class="eyebrow">RESPIRĂ. MARFA E ÎN SIGURANȚĂ.</p><h2 id="pause-title">Pauză de cartier.</h2><p>Continuăm când ești pregătit.</p><button id="resume-button" class="button primary">Înapoi la drum <span>→</span></button><div class="dialog-actions"><button id="pause-retry" class="text-button">Reîncepe</button><button id="pause-home" class="text-button">Alege livrarea</button></div></section>
+    <section id="cab-pause-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="cab-pause-title">
+      <h2 id="cab-pause-title">Probă în pauză</h2>
+      <button id="cab-resume" class="button primary">Continuă proba <span>→</span></button>
+      <button id="cab-exit" class="text-button">Înapoi la livrare</button>
+    </section>
+    <section id="cab-result-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="cab-result-title">
+      <p id="cab-result-course" class="eyebrow"></p><h2 id="cab-result-title"></h2>
+      <p id="cab-result-copy"></p>
+      <button id="cab-done" class="button primary">Înapoi la livrare <span>→</span></button>
+      <button id="cab-retry" class="text-button">Mai încearcă proba</button>
+    </section>
+    <section id="result-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="result-title"><p id="result-eyebrow" class="eyebrow">LIVRARE ÎNCHEIATĂ</p><div id="result-stars" class="result-stars" aria-label="Stele"></div><h2 id="result-title">A ajuns întreagă!</h2><p id="result-copy"></p><div id="quest-result" class="quest-result"></div><p id="fun-result" class="fun-result"></p><div class="reward-receipt"><strong id="reward-amount"></strong><p id="reward-detail"></p></div><div class="result-stats"><div><span>MARFĂ SALVATĂ</span><strong id="result-health"></strong></div><div><span>TIMPUL TĂU</span><strong id="result-time"></strong></div></div><div class="arcade-result"><strong id="result-score">0</strong><span>PUNCTE DE CARTIER</span><p id="result-stunts"></p></div><p id="unlock-note" class="unlock-note"></p><button id="next-button" class="button primary">Următoarea livrare <span>→</span></button><div class="dialog-actions"><button id="result-retry" class="text-button">Mai fac o tură!</button><button id="result-workshop" class="text-button">Atelier</button><button id="result-home" class="text-button">Înapoi în cartier</button></div></section>
+    <section id="route-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="route-title">
+      <div class="route-brief-head">
+        <div><p class="eyebrow" id="route-district"></p><h2 id="route-title"></h2></div>
+        <button id="route-close" class="icon-button" aria-label="Închide harta">×</button>
+      </div>
+      <p id="route-conditions"></p>
+      <canvas id="route-chart" width="800" height="206" aria-label="Profilul de altitudine și obstacolele traseului"></canvas>
+      <div id="route-legend" class="route-legend" aria-label="Elemente marcate pe hartă"></div>
+      <p id="route-feature" aria-live="polite"></p>
+      <button id="route-start" class="button primary">Pornește livrarea <span aria-hidden="true">→</span></button>
+    </section>
+    <section id="help-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <h2 id="help-title">La volan</h2>
+      <ol class="help-steps">
+        <li><b aria-hidden="true">»</b><span><strong>Gaz și frână</strong>Ține apăsată pedala. În aer, gazul coboară botul dubiței, iar frâna îl ridică.</span></li>
+        <li><b aria-hidden="true">↑</b><span><strong>Alege când sari</strong>Urmează marcajele galbene pentru bonusuri în aer. La un prag înalt, așteaptă indicația „Acum sari!”.</span></li>
+        <li><b aria-hidden="true">◇</b><span><strong>Prinde marfa cu chinga</strong>Apasă Ține! înaintea unei zdruncinături. Ai un număr limitat de chingi pe tură.</span></li>
+        <li><b aria-hidden="true">♫</b><span><strong>Deschide bariera</strong>Oprește la linie, ridică degetul de pe Gaz și claxonează. Pe pavaj treci încet.</span></li>
+        <li><b aria-hidden="true">↔</b><span><strong>Încearcă o probă din cabină</strong>La panoul verde, apasă Intră în probă. Folosește săgețile ca să schimbi banda și să eviți traficul.</span></li>
+        <li><b aria-hidden="true">✓</b><span><strong>Încheie livrarea</strong>Oprește în zona verde și apasă Livrează. Din a treia tură urmărește timpul rămas și integritatea mărfii.</span></li>
+      </ol>
+      <button id="help-close" class="button primary">Am înțeles <span aria-hidden="true">✓</span></button>
+    </section>
+    <section id="customs-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="customs-title">
+      <header class="customs-head"><h2 id="customs-title">Personalizare</h2><button id="customs-back" class="icon-button" aria-label="Înapoi la garaj">×</button></header>
+      <div class="customs-preview"><canvas id="customs-car" width="434" height="228" aria-label="Aspectul mașinii selectate"></canvas><strong id="customs-vehicle"></strong></div>
+      <nav id="customs-tabs" aria-label="Categorii de personalizare"></nav>
+      <div id="customs-options"></div>
+    </section>
+    <section id="settings-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title"><p class="eyebrow">GARAJUL DE LA COLȚ</p><h2 id="settings-title">Cu ce livrăm azi?</h2><div id="vehicle-list" class="vehicle-list"></div><div class="setting-row"><span>Toate sunetele</span><button id="sound-toggle" class="switch" role="switch" aria-checked="true">Pornite</button></div><p class="settings-label">CULOAREA TA</p><div id="paint-list" class="paint-list"></div><button id="customs-open" class="button vehicle-customize">Personalizează mașina <span aria-hidden="true">→</span></button><details class="privacy-note"><summary>Politica de confidențialitate</summary><p>Ține coletul! rulează offline. Jocul nu cere cont, nu afișează reclame și nu colectează sau transmite date personale.</p><p>Progresul și preferințele rămân pe dispozitiv. Poți șterge progresul din acest meniu sau poți elimina toate datele jocului din setările Android.</p><p>Pentru întrebări despre joc, folosește adresa din secțiunea de asistență a paginii Ține coletul! din Google Play.</p></details><p id="save-warning" class="small-note hidden">Browserul nu permite salvarea. Poți juca în continuare.</p><button id="settings-close" class="button primary">Gata de drum <span>✓</span></button><button id="reset-button" class="text-button reset-button">Șterge progresul local</button><div id="reset-confirm" class="reset-confirm hidden"><p>Ștergi livrările, upgrade-urile, recordurile și obiectele deblocate?</p><button id="reset-yes" class="text-button">Da, șterge</button><button id="reset-no" class="text-button">Păstrează progresul</button></div></section>
+    <section id="workshop-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="workshop-title"><div class="workshop-head"><p class="eyebrow">O LIVRARE. O ALEGERE NOUĂ.</p><button id="workshop-close" class="icon-button" aria-label="Închide atelierul">×</button></div><div class="workshop-title"><h2 id="workshop-title">Dubița ta evoluează.</h2><span class="wallet-badge"><strong id="workshop-wallet">0</strong> piese</span></div><p class="workshop-intro">Câștigi piese din livrări, monede și acrobații. Upgrade-urile merg pe toate mașinile. Cutia sport și anvelopele se deblochează pe parcurs.</p><div id="upgrade-list" class="upgrade-list"></div><div class="contract-heading"><h3>Contractul următoarei ture.</h3><span>Alegi unul · bonus opțional</span></div><div id="contract-list" class="contract-list"></div><p id="workshop-warning" class="workshop-warning hidden">Salvarea nu este disponibilă în acest browser. Progresul se păstrează doar până închizi jocul.</p><div class="workshop-actions"><button id="workshop-garage" class="text-button">Mașini, culori și sunet</button><button id="workshop-play" class="button primary">La livrare! <span>→</span></button></div></section>
+    <section id="collection-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="collection-title"><div class="collection-top"><p class="eyebrow">CARNET DE CARTIER</p><button id="collection-close" class="icon-button" aria-label="Închide carnetul">×</button></div><h2 id="collection-title">Oamenii fac haosul.</h2><p id="collection-progress"></p><div id="character-list" class="character-list"></div><div id="stamp-list" class="stamp-list"></div><div class="album-heading"><h3>Abțibilduri cu personalitate.</h3><span id="album-count"></span></div><p class="album-copy">Câștigă-le la joacă. Alege unul și lipește-l pe dubiță!</p><div id="sticker-list" class="sticker-list"></div><div class="album-actions"><button id="sticker-none" class="text-button">Fără abțibild</button><span id="album-career" class="album-career"></span></div><p id="collection-preview" class="collection-preview" aria-live="polite"></p><button id="collection-done" class="button primary">Înapoi la livrări <span>→</span></button></section>
+  </div>
+  <p id="toast" class="toast hidden" role="status"></p>
+  <noscript>Jocul are nevoie de JavaScript activat. Toate fișierele necesare sunt incluse local.</noscript>
+</body>
+</html>
