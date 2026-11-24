@@ -29,7 +29,7 @@
       this.vehicle=Data.vehicles.find(v=>v.id===vehicleId)||Data.vehicles[0];
       this.engine.gravity.y=1; this.engine.gravity.scale=.001;
       this.elapsed=0; this.steps=0; this.status='playing'; this.deliveryHold=0; this.overturned=0; this.impacts=[];
-      this.controls={gas:false,brake:false,turbo:false}; this.cargo=[]; this.ground=[];
+      this.controls={gas:false,brake:false,turbo:false,reverse:false}; this.cargo=[]; this.ground=[];
       this.events=[];this.collected=new Set();this.triggeredPads=new Set();this.bonus=0;this.airborne=false;this.airTime=0;this.bestAir=0;this.jumps=0;this.combo=0;
       this.initialRescueCharges=this.tuning.rescueCharges;this.rescueCharges=this.initialRescueCharges;this.rescueRemaining=0;this.ties=[];this.lastLand=0;
       this.buildGround(); this.buildVehicle(); this.buildCargo();
@@ -168,13 +168,23 @@
       this.airborne=flying;
       if(this.rescueRemaining>0){this.rescueRemaining=Math.max(0,this.rescueRemaining-1/60);if(this.rescueRemaining===0)this.clearTies();}
     }
-    setControls(gas,brake,turbo=false) { this.controls.gas=!!gas; this.controls.brake=!!brake; this.controls.turbo=!!turbo; if(!gas||!turbo)this.boosting=false; }
+    setControls(gas,brake,turbo=false,reverse=false) {
+      this.controls.gas=Boolean(gas);
+      this.controls.brake=Boolean(brake);
+      this.controls.turbo=Boolean(turbo);
+      this.controls.reverse=Boolean(reverse);
+      if(!gas||!turbo||reverse)this.boosting=false;
+    }
+    get reversing(){
+      return this.controls.reverse&&!this.controls.gas&&!this.controls.brake&&
+        !this.airborne&&this.grounded&&this.truck.velocity.x<=.72&&this.truck.position.x>90;
+    }
     get nearService() {
       return this.service&&!this.service.used&&Math.abs(this.truck.position.x-this.service.x)<235;
     }
     get canService() {
       return this.status==='playing'&&this.nearService&&Math.abs(this.truck.position.x-this.service.x)<=112&&
-        this.grounded&&!this.controls.gas&&Math.abs(this.truck.velocity.x)<.85;
+        this.grounded&&!this.controls.gas&&!this.controls.reverse&&Math.abs(this.truck.velocity.x)<.85;
     }
     startService() {
       if(!this.canService||this.service.active)return false;
@@ -208,8 +218,10 @@
     get onIce() { return this.onSurface('ice'); }
     step() {
       if(this.status!=='playing') return;
-      const gas=this.controls.gas&&!this.controls.brake;
-      const brake=this.controls.brake||(this.service?.active&&!gas);
+      const reverse=this.reversing;
+      const gas=this.controls.gas&&!this.controls.brake&&!this.controls.reverse;
+      const brake=this.controls.brake||(this.controls.reverse&&!reverse&&this.grounded)||
+        (this.service?.active&&!gas&&!reverse);
       this.jumpCooldown=Math.max(0,this.jumpCooldown-1/60);
       this.boosting=gas&&this.controls.turbo&&this.energy>.01;
       if(this.boosting){this.energy=Math.max(0,this.energy-.18/60);this.turboSeconds+=1/60;}else this.energy=Math.min(this.tuning.turboCapacity,this.energy+this.tuning.turboRegen/60);
@@ -218,6 +230,7 @@
         target=this.vehicle.speed*this.tuning.maxSpeed*(this.boosting?1.4:1);
         motor=this.vehicle.motor*this.tuning.revs*(this.boosting?1.5:1);
       }
+      if(reverse){target=-.064;motor=.105;}
       if(brake)motor=.35;
       if(this.onIce){
         const grip=this.tuning.iceGrip+(this.vehicle.iceGrip||0);
@@ -228,7 +241,7 @@
         motor*=brake?this.tuning.gravelBrake:this.tuning.gravelMotor;
       }
       for(const w of this.wheels) {
-        if(gas||brake) Body.setAngularVelocity(w,w.angularVelocity+(target-w.angularVelocity)*motor);
+        if(gas||brake||reverse) Body.setAngularVelocity(w,w.angularVelocity+(target-w.angularVelocity)*motor);
       }
       if(!this.grounded){const tilt=(this.controls.gas?1:0)-(this.controls.brake?1:0);const gain=.0015+this.tuning.balance*.00045;Body.setAngularVelocity(this.truck,Math.max(-.045,Math.min(.045,this.truck.angularVelocity*(1-this.tuning.balance*.012)+tilt*gain)));}
       Engine.update(this.engine,STEP);
@@ -250,13 +263,13 @@
         this.status='failed'; this.reason='A expirat timpul. Recuperează pe porțiunile drepte.';
       }
       else if (minIntegrity && this.integrity < minIntegrity) {
-        this.status='failed'; this.reason=`Marfa a coborât sub ${Math.round(minIntegrity*100)}%. Reîncearcă cu frânare și sărituri.`;
+        this.status='failed'; this.reason='Marfa a coborât sub {0}%. Reîncearcă cu frânare și sărituri.';this.reasonValues=[Math.round(minIntegrity*100)];;
       }
       else if (t.position.x > this.level.goal + bayEnd) {
         this.status='failed'; this.reason='Ai ieșit din zona de livrare. Frânează mai devreme.';
       }
       else if(this.overturned>2.3||t.position.y>1000||t.position.x< -300) { this.status='failed'; this.reason='Dubița are nevoie de o pauză.'; }
-      else if(t.position.x>=this.level.goal-75 && Math.abs(t.velocity.x)<1.15 && Math.abs(angle)<.45 && !this.routeTrial.next) {
+      else if(t.position.x>=this.level.goal-75 && Math.abs(t.velocity.x)<1.15 && Math.abs(angle)<.45 && !this.controls.reverse && !this.routeTrial.next) {
         this.deliveryHold+=1/60;
         if(this.deliveryHold>=.8) this.readyToDeliver=true;
       } else this.deliveryHold=0;

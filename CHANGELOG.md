@@ -1,3 +1,10 @@
+# 0.14.0 — Coletul de la numărul 0
+
+- Poveste originală în șase capitole pentru toate cele 21 de livrări, cu replici scrise în română și engleză.
+- Selector Română / English în setări și reluarea automată a livrărilor de campanie din puncte sigure.
+- Marșarier tactil cu lumini albe, efecte audio de interacțiune și urme pentru turbo, frână și teren.
+- Cod de versiune Android 15.
+
 # 0.13.0 — Turul orașelor
 
 - Nouă livrări în trei orașe. Brizeni are dig, far și port, Făgetul Alb are urcări pe polei, iar Arămia are sere și turnuri de cupru.

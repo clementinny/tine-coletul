@@ -5,13 +5,15 @@
   const Data=typeof module!=='undefined'&&module.exports?require('./levels.js'):root.CurierData;
   const Cab=typeof module!=='undefined'&&module.exports?require('./cab-run.js'):root.CurierCabRun;
   const Customs=typeof module!=='undefined'&&module.exports?require('./customs.js'):root.CurierCustoms;
+  const Checkpoint=typeof module!=='undefined'&&module.exports?require('./checkpoint.js'):root.CurierCheckpoint;
   const levelIds=Data.levels.map(level=>level.id);
   const key = 'tine-coletul-save-v1';
-  const defaults = () => ({version:1, results:{}, express:{}, cabRecords:{}, customs:{}, paint:'coral',vehicle:'van',sound:true,career:Fun.cleanCareer(),sticker:'none',workshop:Workshop.defaults()});
+  const defaults = () => ({version:1, results:{}, express:{}, cabRecords:{}, customs:{}, language:'ro', checkpoint:null, settledRuns:[], paint:'coral',vehicle:'van',sound:true,career:Fun.cleanCareer(),sticker:'none',workshop:Workshop.defaults()});
   function sanitize(value) {
     const clean=defaults();
     if (!value || value.version !== 1) return clean;
     clean.sound = value.sound !== false;
+    clean.language=value.language==='en'?'en':'ro';
     clean.career=Fun.cleanCareer(value.career);
     for (const id of levelIds) {
       const r=value.results?.[id];
@@ -48,6 +50,10 @@
       if(Data.palettes.some(item=>item.id===style.paint&&item.stars<=stars))equipped.paint=style.paint;
       clean.customs[vehicle.id]=equipped;
     }
+    clean.settledRuns=Array.isArray(value.settledRuns)
+      ? [...new Set(value.settledRuns.filter(id=>typeof id==='string'&&/^run-[a-z0-9-]{1,64}$/.test(id)))].slice(-32) : [];
+    const pending=Checkpoint.clean(value.checkpoint,clean.results);
+    if(pending&&!clean.settledRuns.includes(pending.id))clean.checkpoint=pending;
     return clean;
   }
   class Save {
@@ -83,8 +89,14 @@
       this.write();
       return amount;
     }
+    saveCheckpoint(snapshot){
+      const checked=Checkpoint.clean(snapshot,this.value.results);
+      if(!checked||this.value.settledRuns.includes(checked.id))return false;
+      this.value.checkpoint=checked;
+      return this.write();
+    }
     finishRun(id, result, contractId, runId, challenge=false) {
-      if (!levelIds.includes(id) || !runId || this.awardedRuns.has(runId)) return null;
+      if (!levelIds.includes(id) || !runId || this.awardedRuns.has(runId) || this.value.settledRuns.includes(runId)) return null;
       if (!result || !Number.isInteger(result.stars) || result.stars<0 || result.stars>3 ||
           !Number.isFinite(result.seconds) || result.seconds<=0) return null;
       const reward = Workshop.reward(result, contractId);
@@ -102,6 +114,8 @@
         this.updateBestResult(id, result.stars, result.seconds, result.score, challenge);
       }
       this.awardedRuns.add(runId);
+      if(this.value.checkpoint?.id===runId)this.value.checkpoint=null;
+      if(/^run-[a-z0-9-]{1,64}$/.test(runId))this.value.settledRuns=[...this.value.settledRuns,runId].slice(-32);
       return { ...reward, saved: this.write() };
     }
     finishExpress(id,result,runId) {

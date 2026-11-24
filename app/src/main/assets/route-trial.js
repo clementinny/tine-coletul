@@ -1,5 +1,6 @@
 (function (root) {
   'use strict';
+  const t=text=>root.CurierI18n?.t(text)??text;
   const node = typeof module !== 'undefined' && module.exports;
   const { Bodies, Body, Composite } = node ? require('./vendor/matter.min.js') : root.Matter;
   const { roadY } = node ? require('./levels.js') : root.CurierData;
@@ -39,7 +40,7 @@
 
     canOpen(obstacle) {
       const distance = this.distance(obstacle);
-      return distance >= -12 && distance <= 105 && this.sim.grounded && !this.sim.controls.gas &&
+      return distance >= -12 && distance <= 105 && this.sim.grounded && !this.sim.controls.gas && !this.sim.controls.reverse &&
         Math.abs(this.sim.truck.velocity.x) < 1.05;
     }
 
@@ -174,7 +175,7 @@
         ctx.strokeStyle = '#80664d';
         ctx.strokeRect(x - 57,height,114,24);
         ctx.fillStyle = '#253746';
-        ctx.fillText(label,x,height+16);
+        ctx.fillText(t(label),x,height+16);
       }
       ctx.restore();
     }

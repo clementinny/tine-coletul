@@ -1,5 +1,6 @@
 (function(root){
   'use strict';
+  const translate=text=>root.CurierI18n?.t(text)??text;
   const M=typeof module!=='undefined'&&module.exports?require('./vendor/matter.min.js'):root.Matter;
   const careerKeys=['deliveries','rings','jumps','magnets','bubbles','saves','polite','splashes','horns'];
   const stickers=[
@@ -25,7 +26,7 @@
     racheta:[['M20 40L12 54l14-8M36 44l9 11 0-18','#ef9a61','#294c55',2],['M20 42Q16 18 39 7Q51 31 35 47Z','#f9f1d8','#294c55',2],['M29 23a7 7 0 1 0 14 0 7 7 0 1 0-14 0','#7cc9cf','#294c55',2],['M23 48l-3 12 12-9','#ffd364','#dc8a3d',2]],
     coroana:[['M10 19l12 12L32 12l10 19 12-12-5 28H15Z','#ffd266','#9c783e',2],['M15 47h34v8H15Z','#e7a45e','#9c783e',2],['M28 35l4-5 4 5-4 5Z','#73b6b4','#507f83',1]]
   };
-  function icon(id){const item=stickers.find(s=>s.id===id)||stickers[0];return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="${item.name}"><circle cx="32" cy="32" r="30" fill="${item.color}" stroke="#fff9de" stroke-width="3"/>${art[item.id].map(p=>`<path d="${p[0]}" fill="${p[1]}" stroke="${p[2]}" stroke-width="${p[3]}" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}<path d="M26 42q6 6 12 0" fill="none" stroke="#294b50" stroke-width="2" stroke-linecap="round"/></svg>`;}
+  function icon(id){const item=stickers.find(s=>s.id===id)||stickers[0];return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="${translate(item.name)}"><circle cx="32" cy="32" r="30" fill="${item.color}" stroke="#fff9de" stroke-width="3"/>${art[item.id].map(p=>`<path d="${p[0]}" fill="${p[1]}" stroke="${p[2]}" stroke-width="${p[3]}" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}<path d="M26 42q6 6 12 0" fill="none" stroke="#294b50" stroke-width="2" stroke-linecap="round"/></svg>`;}
   function drawSticker(c,id,x,y,scale=1){if(!art[id])return;c.save();c.translate(x-32*scale,y-32*scale);c.scale(scale,scale);const item=stickers.find(s=>s.id===id);c.beginPath();c.arc(32,32,30,0,7);c.fillStyle=item.color;c.fill();c.strokeStyle='#fff9de';c.lineWidth=3;c.stroke();c.lineJoin='round';c.lineCap='round';for(const p of art[id]){const path=new Path2D(p[0]);if(p[1]!=='none'){c.fillStyle=p[1];c.fill(path);}c.strokeStyle=p[2];c.lineWidth=p[3];c.stroke(path);}c.restore();}
   class Run {
     constructor(sim){this.sim=sim;this.magnet=0;this.bubble=0;this.horn=0;this.hornCooldown=0;this.collected=new Set();this.visited=new Set();this.stats=cleanCareer();}
@@ -62,9 +63,9 @@
       if(z.kind==='chickens'){
         const close=Math.abs(sim.truck.position.x-z.x)<230,excited=run.horn>0&&close;
         for(let i=0;i<3;i++){c.save();c.translate(-38+i*35,-8+Math.sin(t*(excited?20:4)+i)*3);c.rotate(Math.sin(t*4+i)*.07);c.strokeStyle='#bb873f';c.lineWidth=2;c.beginPath();c.moveTo(-5,6);c.lineTo(-7,14);c.moveTo(5,6);c.lineTo(7,14);c.stroke();c.fillStyle='#fff2c9';c.strokeStyle='#47636a';c.beginPath();c.ellipse(0,0,13,10,0,0,7);c.fill();c.stroke();c.beginPath();c.arc(9,-10,8,0,7);c.fill();c.stroke();c.fillStyle='#ef7957';c.beginPath();c.arc(7,-18,3,0,7);c.arc(12,-18,3,0,7);c.fill();c.fillStyle='#eab449';c.beginPath();c.moveTo(16,-12);c.lineTo(24,-8);c.lineTo(16,-6);c.fill();c.fillStyle='#2c4a54';c.beginPath();c.arc(11,-11,1.7,0,7);c.fill();c.strokeStyle='#ccb78b';c.beginPath();c.moveTo(-8,-2);c.quadraticCurveTo(-2,excited?-16:8,6,-1);c.stroke();c.restore();}
-        c.fillStyle='#315765';c.font='bold 10px Trebuchet MS';c.textAlign='center';c.fillText('CONVOI CU PENE',0,-43);
+        c.fillStyle='#315765';c.font='bold 10px Trebuchet MS';c.textAlign='center';c.fillText(translate('CONVOI CU PENE'),0,-43);
       }
-      if(z.kind==='party'){c.strokeStyle='#658d86';c.lineWidth=3;c.beginPath();c.moveTo(-65,-135);c.quadraticCurveTo(0,-107,70,-135);c.stroke();for(let i=0;i<6;i++){c.fillStyle=['#f3b957','#ea8c77','#7bbdb1'][i%3];c.beginPath();c.moveTo(-60+i*24,-130);c.lineTo(-48+i*24,-109);c.lineTo(-38+i*24,-130);c.fill();}c.font='bold 14px Trebuchet MS';c.textAlign='center';c.fillStyle='#3d666c';c.fillText('HAI LA JOACĂ!',0,-160);}
+      if(z.kind==='party'){c.strokeStyle='#658d86';c.lineWidth=3;c.beginPath();c.moveTo(-65,-135);c.quadraticCurveTo(0,-107,70,-135);c.stroke();for(let i=0;i<6;i++){c.fillStyle=['#f3b957','#ea8c77','#7bbdb1'][i%3];c.beginPath();c.moveTo(-60+i*24,-130);c.lineTo(-48+i*24,-109);c.lineTo(-38+i*24,-130);c.fill();}c.font='bold 14px Trebuchet MS';c.textAlign='center';c.fillStyle='#3d666c';c.fillText(translate('HAI LA JOACĂ!'),0,-160);}
       c.restore();
     }
     const truck=sim.truck;

@@ -1,5 +1,6 @@
 (function(root){
   'use strict';
+  const t=text=>root.CurierI18n?.t(text)??text;
   const ink='#263749', ivory='#f7e4bf', ochre='#edb56c', mint='#74ccb0';
   const placings={
     cutii:[[950,'post'],[2550,'market']],
@@ -42,7 +43,7 @@
   }
   function label(c,text,x,y,color=ink,size=13){
     c.font='900 '+size+'px Trebuchet MS,sans-serif';
-    c.textAlign='center';c.fillStyle=color;c.fillText(text,x,y);c.textAlign='start';
+    c.textAlign='center';c.fillStyle=color;c.fillText(t(text),x,y);c.textAlign='start';
   }
   function bunting(c,left,right,y,drop,colors){
     const middle=(left+right)/2;

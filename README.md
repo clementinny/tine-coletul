@@ -1,6 +1,6 @@
 # Ține coletul!
 
-Versiunea 0.13.0. Arcade cu perspectivă 2.5D în română, cu fizica mașinii și a mărfii, 21 de livrări în șase capitole și curse contra cronometru. Offline, fără reclame, conturi, cumpărături cu bani reali sau telemetrie.
+Versiunea 0.14.0. Arcade cu perspectivă 2.5D în română și engleză, cu fizica mașinii și a mărfii, 21 de livrări în șase capitole și curse contra cronometru. Offline, fără reclame, conturi, cumpărături cu bani reali sau telemetrie.
 
 ## Capturi din joc
 
@@ -15,6 +15,12 @@ Versiunea 0.13.0. Arcade cu perspectivă 2.5D în română, cu fizica mașinii �
 Am pornit **Ține coletul!** ca proiect de învățare. Am stabilit direcția creativă, am ales ce mecanici, vehicule și trasee să adaug și am ghidat evoluția jocului. Am folosit instrumente de inteligență artificială ca sprijin la implementare și la rafinarea graficii.
 
 Prin acest proiect învăț cum se construiește și se testează un joc pentru Android și cum se pregătește o lansare în Google Play Console. Vreau să aplic experiența asta la următoarele mele jocuri și aplicații.
+
+## Poveste, limbi și salvare
+
+„Coletul de la numărul 0” leagă cele 21 de livrări într-o poveste de la prima tură din cartier până la parada din Arămia. Scenele sunt scrise. Din Setări poți alege Română sau English.
+
+Jocul salvează automat progresul și punctele sigure ale livrării de campanie în curs. „Continuă” reia livrarea cu timpul, marfa și probele salvate. Pentru marșarier, ține apăsat Înapoi sau folosește săgeata în jos pe tastatură.
 
 ## Joacă pe PC
 

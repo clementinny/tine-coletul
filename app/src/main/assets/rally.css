@@ -327,3 +327,21 @@
   #home .dispatch-card { padding: 0; }
   #home h1 { font-size: 49px; }
 }
+
+#hud #reverse-button { grid-column: 2; grid-row: 1; height: var(--top-key); background: #d0e2ed; }
+#hud #reverse-button svg { width:clamp(19px,3.2vw,29px);height:clamp(19px,3.2vw,29px); }
+#hud #reverse-button.pressed { background:#ffda92; }
+#continue-button { gap:9px; padding-inline:12px; }
+#continue-button #continue-label { font-size:inherit; font-weight:inherit; }
+#home .home-buttons { flex-wrap:wrap; gap:10px; }
+#language-picker { display:flex; flex-wrap:wrap; gap:6px; }
+#language-picker .switch[aria-pressed="true"] { color:#fff7df; background:#25475a; }
+#story-dialog { text-align:left; width:min(550px,100%); }
+#story-dialog .eyebrow { justify-content:flex-start; color:#3c675c; }
+#story-dialog #story-text { font-size:clamp(15px,3.2vw,18px); color:#203e4b; line-height:1.53; }
+#result-dialog #story-reveal { text-align:left; border-left:4px solid #4b9380; padding:8px 12px; background:#e5eee0; color:#294c55; }
+
+html[lang="en"] #home h1 { letter-spacing:-.075em; font-size:clamp(44px,min(8.35vw,14vh),130px); }
+@media (orientation:portrait) {
+  html[lang="en"] #home h1 { font-size:clamp(44px,13.3vw,82px); }
+}

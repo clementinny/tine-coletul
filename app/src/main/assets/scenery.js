@@ -1,5 +1,6 @@
 (function(root) {
   'use strict';
+  const t=text=>root.CurierI18n?.t(text)??text;
 
   const palettes = {
     cutii:   { sky:['#527ea2','#ffce87'], sun:'#ffdb82', hills:['#9aa6a0','#798d80'], gravel:'#bc8158', shoulder:'#d09f6f', lights:'#ffeac5' },
@@ -200,7 +201,7 @@
         c.font='800 12px Trebuchet MS, sans-serif';
         c.textAlign='center';
         c.fillStyle='#ffdb8b';
-        c.fillText(ice?'POLEI':'PIETRIȘ',start-5,y-67);
+        c.fillText(t(ice?'POLEI':'PIETRIȘ'),start-5,y-67);
         c.textAlign='start';
       }
     }

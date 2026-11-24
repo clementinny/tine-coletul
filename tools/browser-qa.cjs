@@ -11,12 +11,20 @@ const qa=path.resolve(__dirname,'../qa');fs.mkdirSync(qa,{recursive:true});
   const context=await browser.newContext({viewport:{width:1440,height:900}});
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))external.push(r.url());});
   await page.clock.install();await page.goto(url);await page.clock.runFor(100);
+  async function play(){
+    const pending=page.locator('#continue-button');
+    if(await pending.isVisible())await pending.click();
+    else{
+      await page.click('#play-button');
+      if(await page.locator('#story-dialog').isVisible())await page.click('#story-start');
+    }
+  }
   assert.equal((await page.evaluate(()=>CurierGame.snapshot())).mode,'home');
   assert.equal(await page.locator('.level-card:disabled').count(),5);
   await page.screenshot({path:path.join(qa,'home-desktop.png')});await page.click('#garage-button');assert.equal(await page.locator('.upgrade-buy:disabled').count(),8);await page.locator('[data-contract="careful"]').click();assert.equal((await page.evaluate(()=>CurierGame.snapshot())).workshop.contract,'careful');await page.click('#workshop-close');
   await page.click('#collection-button');assert.equal(await page.locator('.character-card.locked').count(),3);assert.equal(await page.locator('.sticker-choice:disabled').count(),7);assert.equal(await page.locator('.sticker-choice').count(),8);await page.screenshot({path:path.join(qa,'collection-locked.png')});await page.click('#collection-close');
   await page.click('#help-button');assert.equal(await page.locator('#help-dialog').isVisible(),true);await page.keyboard.press('Escape');
-  await page.click('#play-button');await page.keyboard.press('h');await page.clock.runFor(50);assert.equal((await page.evaluate(()=>CurierGame.snapshot())).fun.stats.horns,1);await page.keyboard.press('h');assert.equal((await page.evaluate(()=>CurierGame.snapshot())).fun.stats.horns,1);await page.keyboard.down('ArrowRight');await page.clock.runFor(500);await page.keyboard.press('Space');await page.keyboard.down('ShiftLeft');await page.clock.runFor(300);let pilot=await page.evaluate(()=>CurierGame.snapshot());assert.equal(pilot.manualJumps,1);assert.equal(pilot.boosting,true);assert.ok(pilot.energy<pilot.energyMax);await page.click('#pause-button');
+  await play();await page.keyboard.press('h');await page.clock.runFor(50);assert.equal((await page.evaluate(()=>CurierGame.snapshot())).fun.stats.horns,1);await page.keyboard.press('h');assert.equal((await page.evaluate(()=>CurierGame.snapshot())).fun.stats.horns,1);await page.keyboard.down('ArrowRight');await page.clock.runFor(500);await page.keyboard.press('Space');await page.keyboard.down('ShiftLeft');await page.clock.runFor(300);let pilot=await page.evaluate(()=>CurierGame.snapshot());assert.equal(pilot.manualJumps,1);assert.equal(pilot.boosting,true);assert.ok(pilot.energy<pilot.energyMax);await page.click('#pause-button');
   let snap=await page.evaluate(()=>CurierGame.snapshot());assert.equal(snap.mode,'paused');assert.equal(snap.gas,false);const pausedTime=snap.elapsed,pausedEnergy=snap.energy;assert.equal(snap.turbo,false);await page.clock.runFor(3000);assert.equal((await page.evaluate(()=>CurierGame.snapshot())).elapsed,pausedTime);assert.equal((await page.evaluate(()=>CurierGame.snapshot())).energy,pausedEnergy);
   await page.click('#resume-button');await page.keyboard.up('ShiftLeft');await page.keyboard.up('ArrowRight');await page.keyboard.press('r');assert.equal((await page.evaluate(()=>CurierGame.snapshot())).manualJumps,0);assert.equal((await page.evaluate(()=>CurierGame.snapshot())).workshop.wallet,0);
   await page.keyboard.down('ArrowRight');
@@ -48,7 +56,7 @@ const qa=path.resolve(__dirname,'../qa');fs.mkdirSync(qa,{recursive:true});
   assert.equal((await page.evaluate(()=>CurierGame.snapshot())).vehicle,'monster');assert.equal((await page.evaluate(()=>CurierGame.snapshot())).workshop.levels.suspension,1);assert.equal((await page.evaluate(()=>CurierGame.snapshot())).workshop.contract,'acrobat');
   // Inspect both compact landscape and portrait layouts without granting any network access.
   await page.setViewportSize({width:844,height:390});await page.clock.runFor(100);await page.screenshot({path:path.join(qa,'home-landscape.png')});
-  await page.click('#play-button');await page.clock.runFor(100);await page.screenshot({path:path.join(qa,'drive-landscape.png')});
+  await play();await page.clock.runFor(100);await page.screenshot({path:path.join(qa,'drive-landscape.png')});
   assert.doesNotMatch(await page.locator('#hud').innerText(),/Space|Shift|A \/ D|E ·|→ \/ D/);
   await page.keyboard.press('e');await page.clock.runFor(200);snap=await page.evaluate(()=>CurierGame.snapshot());assert.equal(snap.rescueCharges,1);await page.click('#pause-button');const rescueTime=(await page.evaluate(()=>CurierGame.snapshot())).rescueRemaining;await page.clock.runFor(2000);assert.equal((await page.evaluate(()=>CurierGame.snapshot())).rescueRemaining,rescueTime);await page.click('#resume-button');
 
@@ -101,18 +109,20 @@ const qa=path.resolve(__dirname,'../qa');fs.mkdirSync(qa,{recursive:true});
   await page.evaluate(()=>window.dispatchEvent(new Event('blur')));snap=await page.evaluate(()=>CurierGame.snapshot());assert.equal(snap.mode,'paused');assert.equal(snap.brake,false);
   await page.click('#pause-home');await page.setViewportSize({width:390,height:844});await page.clock.runFor(100);await page.screenshot({path:path.join(qa,'home-portrait.png')});await page.click('#garage-button');await page.screenshot({path:path.join(qa,'workshop-portrait.png')});await page.click('#workshop-close');await page.click('#collection-button');await page.locator('.sticker-choice').first().scrollIntoViewIfNeeded();await page.screenshot({path:path.join(qa,'fun-album-portrait.png')});await page.keyboard.press('Escape');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-  await page.click('#play-button');await page.clock.runFor(100);const controlIds=['brake','gas','jump-button','turbo-button','rescue-button'];const controlRects=await Promise.all(controlIds.map(id=>page.locator('#'+id).boundingBox()));for(const r of controlRects)assert.ok(r.x>=0&&r.y>=0&&r.x+r.width<=390&&r.y+r.height<=844);for(let i=0;i<controlRects.length;i++)for(let j=i+1;j<controlRects.length;j++){const a=controlRects[i],b=controlRects[j];assert.ok(a.x+a.width<=b.x||b.x+b.width<=a.x||a.y+a.height<=b.y||b.y+b.height<=a.y,`overlap ${controlIds[i]}/${controlIds[j]}`);}await page.screenshot({path:path.join(qa,'pilot-portrait.png')});
+  await play();await page.clock.runFor(100);const controlIds=['brake','gas','jump-button','turbo-button','rescue-button','reverse-button'];const controlRects=await Promise.all(controlIds.map(id=>page.locator('#'+id).boundingBox()));for(const r of controlRects)assert.ok(r.x>=0&&r.y>=0&&r.x+r.width<=390&&r.y+r.height<=844);for(let i=0;i<controlRects.length;i++)for(let j=i+1;j<controlRects.length;j++){const a=controlRects[i],b=controlRects[j];assert.ok(a.x+a.width<=b.x||b.x+b.width<=a.x||a.y+a.height<=b.y||b.y+b.height<=a.y,`overlap ${controlIds[i]}/${controlIds[j]}`);}await page.screenshot({path:path.join(qa,'pilot-portrait.png')});
 
   // Open the final route from an existing campaign save and check its countdown in the game.
+  await page.click('#pause-button');
   await page.evaluate(()=>{
     const key='tine-coletul-save-v1';
     const saved=JSON.parse(localStorage.getItem(key));
+    delete saved.checkpoint;
     for(const level of CurierData.levels.slice(0,5))saved.results[level.id]={stars:2,time:28};
     localStorage.setItem(key,JSON.stringify(saved));
   });
   await page.setViewportSize({width:844,height:390});
   await page.reload();
-  await page.click('#play-button');
+  await play();
   await page.clock.runFor(120);
   assert.equal((await page.evaluate(()=>CurierGame.snapshot())).level,'cartier');
   assert.equal(await page.locator('#clock-label').textContent(),'RĂMAS');
@@ -249,8 +259,60 @@ const qa=path.resolve(__dirname,'../qa');fs.mkdirSync(qa,{recursive:true});
   assert.equal(snap.customs.charm.id,'leaf');
   assert.equal(snap.cabRecords.tort,3);
   assert.equal(snap.workshop.levels.steering,1);
+  const storyContext=await browser.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true});
+  const story=await storyContext.newPage();
+  story.on('pageerror',error=>errors.push(error.message));
+  story.on('request',request=>{if(/^https?:/.test(request.url()))external.push(request.url());});
+  await story.clock.install();
+  await story.goto(url);
+  const status=()=>story.evaluate(()=>CurierGame.snapshot());
+  await story.locator('#settings-button').tap();
+  await story.locator('#language-en').tap();
+  assert.equal(await story.locator('html').getAttribute('lang'),'en');
+  assert.equal(await story.locator('#settings-title').innerText(),'What are we driving today?');
+  assert.equal(await story.locator('.vehicle-card').first().locator('strong').textContent(),'Van');
+  await story.reload();
+  assert.equal((await status()).language,'en');
+  assert.match(await story.locator('#home h1').innerText(),/KEEP THE/);
+  await story.locator('#play-button').tap();
+  assert.equal((await status()).mode,'story');
+  assert.equal(await story.locator('#story-title').innerText(),'The Parcel from Number Zero');
+  await story.screenshot({path:path.join(qa,'story-opening.png')});
+  await story.locator('#story-start').tap();
+  assert.equal(await story.locator('#mission-name').innerText(),'Cabbage Rolls to Go');
+  assert.equal(await story.locator('#reverse-button strong').innerText(),'REVERSE');
+  const phone=await storyContext.newCDPSession(story);
+  async function hold(id){
+    const rect=await story.locator('#'+id).boundingBox();
+    await phone.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:rect.x+rect.width/2,y:rect.y+rect.height/2}]});
+  }
+  async function release(){await phone.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}
+  await hold('gas');
+  await story.clock.runFor(2100);
+  await release();
+  await hold('reverse-button');
+  await story.clock.runFor(950);
+  const reversing=await status();
+  assert.equal(reversing.reversing,true);
+  await story.clock.runFor(400);
+  assert.ok((await status()).x<reversing.x-10);
+  await story.screenshot({path:path.join(qa,'reverse-android.png')});
+  await release();
+  await story.locator('#pause-button').tap();
+  const saved=(await status()).checkpoint;
+  assert.ok(saved.elapsed>2);
+  await story.reload();
+  assert.ok(await story.locator('#continue-button').isVisible());
+  assert.equal(await story.locator('#continue-label').innerText(),'Continue');
+  await story.locator('#continue-button').tap();
+  const restored=await status();
+  assert.equal(restored.mode,'playing');
+  assert.equal(restored.level,saved.level);
+  assert.ok(Math.abs(restored.x-saved.x)<6);
+  assert.ok(Math.abs(restored.elapsed-saved.elapsed)<.09);
+  await storyContext.close();
   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
-  const report={passed:true,version:require('../package.json').version,checks:['slowing for the first rough patch','barrier opens only after stopping and using the horn','manual jump and turbo input spend energy','pause freezes jump and turbo state','delivery waits for explicit unload','earned parts pay for a persistent upgrade','contract selection persists','gas plus turbo through real multitouch','turbo with one touch and jump on touch down','no visible keyboard labels','no automatic pickups on the first route','coins collected through a timed touch jump','horn input and cooldown','comic puddles and chickens','sticker album unlocks, equips and persists','career totals awarded at run completion','desktop gameplay and complete story delivery','story challenge earns a persistent stamp','character book and progression unlocks','Express access and restart preserve the selected mode','caption-only dialogue and character lines','ramps, landing score and rescue in a real run','pause freezes rescue duration and simulation','focus loss releases input','save survives reload','level, vehicle and paint unlocks','selected vehicle and settings persist','landscape and portrait layout','mouse capture cancel and genuine CDP multitouch cancel','enter a roadside trial and earn gold with keyboard and touch','cab pause and return preserve the current delivery','trial medals unlock steering and per-vehicle styling persists','no external requests','no JavaScript errors'],screenshots:fs.readdirSync(qa).filter(n=>n.endsWith('.png'))};
+  const report={passed:true,version:require('../package.json').version,checks:['slowing for the first rough patch','barrier opens only after stopping and using the horn','manual jump and turbo input spend energy','pause freezes jump and turbo state','delivery waits for explicit unload','earned parts pay for a persistent upgrade','contract selection persists','gas plus turbo through real multitouch','turbo with one touch and jump on touch down','no visible keyboard labels','no automatic pickups on the first route','coins collected through a timed touch jump','horn input and cooldown','comic puddles and chickens','sticker album unlocks, equips and persists','career totals awarded at run completion','desktop gameplay and complete story delivery','story challenge earns a persistent stamp','character book and progression unlocks','Express access and restart preserve the selected mode','caption-only dialogue and character lines','ramps, landing score and rescue in a real run','pause freezes rescue duration and simulation','focus loss releases input','save survives reload','level, vehicle and paint unlocks','selected vehicle and settings persist','landscape and portrait layout','mouse capture cancel and genuine CDP multitouch cancel','enter a roadside trial and earn gold with keyboard and touch','cab pause and return preserve the current delivery','trial medals unlock steering and per-vehicle styling persists','English settings, briefing and controls persist after reload','dedicated reverse pedal backs the vehicle up on a touchscreen','automatic checkpoint resumes the delivery and timer after reload','no external requests','no JavaScript errors'],screenshots:fs.readdirSync(qa).filter(n=>n.endsWith('.png'))};
   fs.writeFileSync(path.join(qa,'browser-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
  } finally {await browser.close();}
 })().catch(e=>{console.error(e.stack);process.exitCode=1;});

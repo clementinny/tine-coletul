@@ -1,5 +1,6 @@
 (function(root){
   'use strict';
+  const t=text=>root.CurierI18n?.t(text)??text;
   const ink='#223b52';
   function poly(c,points,color,outline){
     c.beginPath();
@@ -20,6 +21,7 @@
   }
   function caption(c,text,x,y){
     c.font='900 12px Trebuchet MS, sans-serif';
+    text=t(text);
     const w=c.measureText(text).width+22;
     box(c,x-w/2,y-17,w,23,ink);
     c.fillStyle='#ffe5ac';

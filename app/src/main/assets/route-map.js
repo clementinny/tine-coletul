@@ -1,5 +1,6 @@
 (function(root){
   'use strict';
+  const t=text=>root.CurierI18n?.t(text)??text;
   const features={
     rough:{name:'Pavaj',color:'#f0c875',description:'Frânează din timp și treci încet peste dungi.'},
     leap:{name:'Praguri',color:'#f79883',description:'La pragurile înalte, sari când apare semnalul. Peste pragurile joase poți trece și încet.'},
@@ -74,7 +75,7 @@
     c.globalAlpha=1;
     c.fillStyle='#fff0cf';c.font='bold 13px system-ui';
     c.textAlign='left';c.fillText('START',27,h-12);
-    c.textAlign='right';c.fillText('LIVRARE',w-27,h-12);
+    c.textAlign='right';c.fillText(t('LIVRARE'),w-27,h-12);
   }
   root.CurierRouteMap={features,available,draw,pick};
 })(globalThis);
